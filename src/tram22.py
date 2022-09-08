@@ -13,14 +13,35 @@ import datetime
 import pytz
 
 
-# Sets up logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+# Setup and input
+if not os.path.exists('../env/.env'):
+    os.makedirs(os.path.dirname('../env/.env'), exist_ok=True)
+    with open('../env/.env', 'w') as env:
+        envstr = '# .env'
+        print("Enter your bot's token:")
+        envtoken = input()
+        envstr += '\nTOKEN = ' + envtoken
+        
+        env.write(envstr)
+        print('.env created!')
 
+for jsonfile in ['tram22.json', 'telegramdata.json', 'discorddata.json', 'discordguilddata.json']:
+    if not os.path.exists('../json/'+jsonfile):
+        os.makedirs(os.path.dirname('../json/'+jsonfile), exist_ok=True)
+        with open('../json/'+jsonfile, 'w') as jsonname:
+            json.dump({}, jsonname, indent = 4)
+        print(jsonfile+' created!')
+
+print('Starting bot...')
+
+# .env
+load_dotenv('../env/.env')
+
+# Set up logging
+logging.basicConfig()
+
+# Setting up data url
 url = 'https://www.u-ov.info/api/website/graphql'
-load_dotenv()
 
 # Discord stuff
 TOKEN = os.getenv('DISCORDTOKEN')
@@ -104,7 +125,7 @@ async def getDisruptions():
     info = json.loads(requests.post(url, json = payload).text)['data']['website']['qry']['items']['edges']
     
     # Current disruption database
-    with open('tram22.json', 'r') as tram22json:
+    with open('../json/tram22.json', 'r') as tram22json:
         database = json.load(tram22json)
     
     # Checking if disruptions have ended
@@ -133,7 +154,7 @@ async def getDisruptions():
             
             # Send Discord message
             try:
-                with open('discorddata.json', 'r') as discorddatajson:
+                with open('../json/discorddata.json', 'r') as discorddatajson:
                     discorddata = json.load(discorddatajson)
                 
                 for user in discorddata:
@@ -148,7 +169,7 @@ async def getDisruptions():
                 print(e)
             
             try:
-                with open('discordguilddata.json', 'r') as discordguilddatajson:
+                with open('../json/discordguilddata.json', 'r') as discordguilddatajson:
                     discordguilddata = json.load(discordguilddatajson)
                 
                 for guild in discordguilddata:
@@ -165,7 +186,7 @@ async def getDisruptions():
             
             # Send Telegram message
             try:
-                with open('telegramdata.json', 'r') as telegramdatajson:
+                with open('../json/telegramdata.json', 'r') as telegramdatajson:
                     telegramdata = json.load(telegramdatajson)
                 for chatid in telegramdata:
                     try:
@@ -203,7 +224,7 @@ async def getDisruptions():
                         
                         # Send Discord message
                         try:
-                            with open('discorddata.json', 'r') as discorddatajson:
+                            with open('../json/discorddata.json', 'r') as discorddatajson:
                                 discorddata = json.load(discorddatajson)
                             for user in discorddata:
                                 try:
@@ -217,8 +238,8 @@ async def getDisruptions():
                         
                         # Send Telegram message
                         try:
-                            with open('telegramdata.json', 'r') as telegramdatajson:
-                                telegramdata = json.load(open('telegramdata.json', 'r'))
+                            with open('../json/telegramdata.json', 'r') as telegramdatajson:
+                                telegramdata = json.load(open('../json/telegramdata.json', 'r'))
                             for chatid in telegramdata:
                                 requests.post(f'https://api.telegram.org/bot{TTOKEN}/sendMessage?chat_id={chatid}&text={message}')
                         except Exception as e:
@@ -226,7 +247,7 @@ async def getDisruptions():
                             print(e)
             except:
                 pass
-    with open('tram22.json', 'w') as tram22json:
+    with open('../json/tram22.json', 'w') as tram22json:
         json.dump(database, tram22json, indent = 4)
 
 @client.event
@@ -242,7 +263,7 @@ async def disruptionLoop():
 # Discord commands
 @client.slash_command(description = "Voegt je toe aan of verwijdert je van de Tram 22 message list.")
 async def subscribe(inter):
-    with open('discorddata.json', 'r') as discorddatajson:
+    with open('../json/discorddata.json', 'r') as discorddatajson:
         discorddata = json.load(discorddatajson)
     if inter.author.id not in discorddata:
         discorddata.append(inter.author.id)
@@ -252,13 +273,13 @@ async def subscribe(inter):
     else:
         discorddata.pop(discorddata.index(inter.author.id))
         await inter.response.send_message(f"Hey {inter.author}! Ik heb je verwijderd uit de message list!", ephemeral=True)
-    with open('discorddata.json', 'w') as discorddatajson:
+    with open('../json/discorddata.json', 'w') as discorddatajson:
         json.dump(discorddata, discorddatajson, indent = 4)
 
 @client.slash_command(description = "Voegt dit kanaal toe aan of verwijdert het van de Tram 22 message list.")
 @commands.has_permissions(manage_channels = True)
 async def subscribechannel(inter):
-    with open('discordguilddata.json', 'r') as discordguilddatajson:
+    with open('../json/discordguilddata.json', 'r') as discordguilddatajson:
         discordguilddata = json.load(discordguilddatajson)
     if str(inter.guild_id) not in discordguilddata:
         discordguilddata[str(inter.guild_id)] = []
@@ -268,7 +289,7 @@ async def subscribechannel(inter):
     else:
         discordguilddata[str(inter.guild_id)].pop(discordguilddata[str(inter.guild_id)].index(inter.channel_id))
         await inter.response.send_message(f"Hey! Ik heb dit kanaal verwijderd uit de message list!")
-    with open('discordguilddata.json', 'w') as discordguilddatajson:
+    with open('../json/discordguilddata.json', 'w') as discordguilddatajson:
         json.dump(discordguilddata, discordguilddatajson, indent = 4)
 
 @client.slash_command(description = "Stuurt een invite link voor deze bot.")
@@ -277,7 +298,7 @@ async def invite(inter):
 
 @client.event
 async def on_guild_remove(guild):
-    with open('discordguilddata.json', 'r') as discordguilddatajson:
+    with open('../json/discordguilddata.json', 'r') as discordguilddatajson:
         discordguilddata = json.load(discordguilddatajson)
     
     try:
@@ -285,7 +306,7 @@ async def on_guild_remove(guild):
     except:
         pass
     
-    with open('discordguilddata.json', 'w') as discordguilddatajson:
+    with open('../json/discordguilddata.json', 'w') as discordguilddatajson:
         json.dump(discordguilddata, discordguilddatajson, indent = 4)
         
 
@@ -295,7 +316,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Welkom bij Tram22Bot. Gebruik /subscribe om je in te schrijven voor onze message list.")
 
 async def telsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    with open('telegramdata.json', 'r') as telegramdatajson:
+    with open('../json/telegramdata.json', 'r') as telegramdatajson:
         telegramdata = json.load(telegramdatajson)
     if update.message.chat_id not in telegramdata:
         telegramdata.append(update.message.chat_id)
@@ -304,7 +325,7 @@ async def telsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
         telegramdata.pop(telegramdata.index(update.message.chat_id))
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Ik heb je verwijderd uit de message list!")
         #await inter.response.send_message(f"Hey {inter.author}! Ik heb je verwijderd uit de message list!", ephemeral=True)
-    with open('telegramdata.json', 'w') as telegramdatajson:
+    with open('../json/telegramdata.json', 'w') as telegramdatajson:
         json.dump(telegramdata, telegramdatajson, indent = 4)
 
 # Running the Telegram bot
