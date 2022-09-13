@@ -147,7 +147,7 @@ async def getDisruptions():
                 print(e)
             
             try:
-                twclient.create_tweet(text=timeconvert(requests.get('http://just-the-time.appspot.com/').content.decode('utf-8')) +" \n" + messString, in_reply_to_status_id=database[disruption]['tweetid'])
+                twclient.create_tweet(text=timeconvert(requests.get('http://just-the-time.appspot.com/').content.decode('utf-8')) +" \n" + messString, in_reply_to_tweet_id=database[disruption]['tweetid'])
             except Exception as e:
                 print('Reply tweet failed.')
                 print(e)
