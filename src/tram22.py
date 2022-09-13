@@ -147,7 +147,7 @@ async def getDisruptions():
                 print(e)
             
             try:
-                twclient.create_tweet(text=timeconvert(requests.get('http://just-the-time.appspot.com/').content.decode('utf-8')) +" \n" + messString, in_reply_to_status_id=database[disruption]['tweetid'])
+                twclient.create_tweet(text=timeconvert(requests.get('http://just-the-time.appspot.com/').content.decode('utf-8')) +" \n" + messString, in_reply_to_tweet_id=database[disruption]['tweetid'])
             except Exception as e:
                 print('Reply tweet failed.')
                 print(e)
@@ -234,6 +234,22 @@ async def getDisruptions():
                                     pass
                         except Exception as e:
                             print('Discord message failed.')
+                            print(e)
+                        
+                        try:
+                            with open('../json/discordguilddata.json', 'r') as discordguilddatajson:
+                                discordguilddata = json.load(discordguilddatajson)
+                            
+                            for guild in discordguilddata:
+                                for channel in discordguilddata[guild]:
+                                    try:
+                                        chan = await client.fetch_channel(channel)
+                                        await chan.send(message)
+                                    except Exception as e:
+                                        print(f'Discord message failed, channel: {channel}.')
+                                        print(e)
+                        except Exception as e:
+                            print('Discord guild message failed.')
                             print(e)
                         
                         # Send Telegram message
