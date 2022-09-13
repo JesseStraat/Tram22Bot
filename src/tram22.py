@@ -16,12 +16,34 @@ import pytz
 # Setup and input
 if not os.path.exists('../env/.env'):
     os.makedirs(os.path.dirname('../env/.env'), exist_ok=True)
+    
+    print("Enter your Twitter bot's consumer key:")
+    consumerkey = input()
+    print("Enter your Twitter bot's consumer secret:")
+    consumersecret = input()
+    print("Enter your Twitter bot's access token:")
+    accesstoken = input()
+    print("Enter your Twitter bot's access token secret:")
+    accesstokensecret = input()
+    print("Enter your Twitter bot's bearer token:")
+    bearer = input()
+    print("Enter your Discord bot's token:")
+    discordtoken = input()
+    print("Enter your Telegram bot's token:")
+    telegramtoken = input()
+    
+    envstr = ("# .env\n"
+              f"CONSUMERKEY = {consumerkey}\n"
+              f"CONSUMERSECRET = {consumersecret}\n"
+              f"ACCESSTOKEN = {accesstoken}\n"
+              f"ACCESSTOKENSECRET = {accesstokensecret}\n"
+              f"BEARER = {bearer}\n"
+              "\n"
+              f"DISCORDTOKEN = {discordtoken}\n"
+              "\n"
+              f"TELEGRAMTOKEN = {telegramtoken}")
+    
     with open('../env/.env', 'w') as env:
-        envstr = '# .env'
-        print("Enter your bot's token:")
-        envtoken = input()
-        envstr += '\nTOKEN = ' + envtoken
-        
         env.write(envstr)
         print('.env created!')
 
