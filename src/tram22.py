@@ -236,6 +236,22 @@ async def getDisruptions():
                             print('Discord message failed.')
                             print(e)
                         
+                        try:
+                            with open('../json/discordguilddata.json', 'r') as discordguilddatajson:
+                                discordguilddata = json.load(discordguilddatajson)
+                            
+                            for guild in discordguilddata:
+                                for channel in discordguilddata[guild]:
+                                    try:
+                                        chan = await client.fetch_channel(channel)
+                                        await chan.send(message)
+                                    except Exception as e:
+                                        print(f'Discord message failed, channel: {channel}.')
+                                        print(e)
+                        except Exception as e:
+                            print('Discord guild message failed.')
+                            print(e)
+                        
                         # Send Telegram message
                         try:
                             with open('../json/telegramdata.json', 'r') as telegramdatajson:
