@@ -2,6 +2,8 @@
 
 Tram22Bot is a Discord/Telegram/Twitter bot written in Python for informing the user of any calamities related to U-OV's tram line 22.
 
+To see the bot in action, [visit its Twitter account](https://twitter.com/Tram22RijdtNiet).
+
 ## Usage
 
 To set up the bot, you are only required to run the tram22.py script. It automatically generates all required jsons, and furthermore generates a file called '.env', which saves your Discord token, for which you are prompted.
