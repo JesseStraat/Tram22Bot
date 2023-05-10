@@ -13,6 +13,7 @@ To set up the bot, you are only required to run the tram22.py script. It automat
 Your project should look as follows,
 
 ```
+|   .gitignore
 │   LICENSE
 │   README.md
 │
